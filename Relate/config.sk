@@ -1,0 +1,7 @@
+vcf='chr{chr}_phased' # phased bcf per chr filtered with the populations you want use to create the trees
+popfile='example.pop' # pop file ID pop1 pop2 sex separated with space. sex can be "NA". No need of a specific order
+ancestor_file='homo_sapiens_ancestor_{chr}.fa.gz' # ancestor file in fasta format from Ensembl
+map_file='genetic_map_hg38_chr{chr}.txt.gz' # recombination map per chr in the shapeit format "position COMBINED_rate(cM/Mb) Genetic_Map(cM)"
+mask_file='full_mask_chr{chr}.fa.gz' # mask file per chr in fasta format
+POP_TO_EXTRACT=['Mt_Wilhelm','Daru','YRI','CHB','CEU'] # pop for which you want to extract a tree for and compute population size
+Relate_Dir = 'relate_v1.1.8_x86_64_static' # directory to your relate version

@@ -11,7 +11,7 @@ dir_tree = TREES
 bed = open(sites_bed)
 
 """
-create the dictionary of sites list per chr (included in the regions of interest 
+create the dictionary of sites list per chr
 """
 chr_to_snp = defaultdict(list)
 CHR=[]
