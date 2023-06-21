@@ -15,7 +15,8 @@ We create a positive mask using [bedtools v2.29.2](https://bedtools.readthedocs.
 site present in both the coverage mask we created (mask_all_sort.bed) and the [[mappability mask use]](https://share.eva.mpg.de/index.php/s/ygfMbzwxneoTPZj) with [[MSMC]](https://github.com/stschiff/msmc-tools/tree/master)  liftover to GR38 \
 `bedtools intersect -a mask_all_sort.bed -b gr38.mask.bed > mask_coverage_and_map.bed`
 #### filtering out the variant without PASS flag from the variant calling
-Keep only the sites that pass the PASS filter from the variant calling unfiltered vcf files.\
+Keep only the sites that pass the PASS filter from the variant calling unfiltered vcf files.
+\
 `vcftools --gzvcf raw_chr"$0".vcf.gz --remove-filtered-all --recode --stdout |bgzip > sites_PASS_chr"$0".vcf.gz`\
 Output the site without PASS flag from the variant calling unfiltered vcf files.\
 `bcftools isec -C -o sites_not_PASS_chr"$0".bed -Oz raw_chr"$0".vcf.gz sites_PASS_chr"$0".vcf.gz`\
