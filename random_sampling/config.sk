@@ -1,0 +1,6 @@
+regions_bed = "regions.bed" #regions for which you want to get the pvalue
+autosome = "Autosome.bed" #autosome coordinates
+selection_file = "xpehh_all.out.norm.gz" # selection scan results
+score_name = "xpehh" #or xpehh, pbs, pbs_mean or fisher
+number_random_regions= 10000 # random sampling of how many random regions
+minimal_line_inter = 40 # minimal number of sites with scores included in each random regions

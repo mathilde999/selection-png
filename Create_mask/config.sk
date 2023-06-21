@@ -1,0 +1,6 @@
+bam_list= "list_bam.txt" # list of the bam you are using
+ref_file= "Homo_sapiens_assembly38.fasta" # reference genome fasta
+mean_coverage= 24184.7 # sum of the mean coverage of the bam used to compute the mask
+windows_bed= "windows_test.bed" # bed file of autosomes broken in 25kb windows to run the snakemake per windows
+modules='any/bcftools/1.14'
+convert_vcf = 'VCF_to_BED.py' # script to convert output vcf from bcftools call to bed files
