@@ -3,24 +3,24 @@ Scripts developed and used in [[André et al., biorxiv 2022]](https://doi.org/10
 
 ### creation of a genomic mask 
 #### create coverage mask 
-We included in the positive coverage mask sites with a minimum base quality of 20, an alignment minimum mapping quality\ 
-of 20 and downgrading mapping quality for reads containing excessive mismatches with a coefficient of 50. From these\
-sites, we excluded indels, sites with more than two alleles, sites with a maximum missing rate of 5%. We also masked\
-sites whose depth of coverage summed across all samples was higher or lower than the sum of the average depth across the\
+We included in the positive coverage mask sites with a minimum base quality of 20, an alignment minimum mapping quality 
+of 20 and downgrading mapping quality for reads containing excessive mismatches with a coefficient of 50. From these
+sites, we excluded indels, sites with more than two alleles, sites with a maximum missing rate of 5%. We also masked
+sites whose depth of coverage summed across all samples was higher or lower than the sum of the average depth across the
 dataset by a factor of 2-fold.\
 `snakemake -s mask.smk --profile [profile_file]`
 #### create positive mask with coverage mask and mappability mask 
-We create a positive mask using [bedtools v2.29.2](https://bedtools.readthedocs.io/en/latest/index.html) including the \
+We create a positive mask using [bedtools v2.29.2](https://bedtools.readthedocs.io/en/latest/index.html) including the 
 site present in both the coverage mask we created (mask_all_sort.bed) and the [[mappability mask use]](https://share.eva.mpg.de/index.php/s/ygfMbzwxneoTPZj) with [[MSMC]](https://github.com/stschiff/msmc-tools/tree/master)  liftover to GR38 \
 `bedtools intersect -a mask_all_sort.bed -b gr38.mask.bed > mask_coverage_and_map.bed`
 #### filtering out the variant without PASS flag from the variant calling
 Keep only the sites that pass the PASS filter from the variant calling unfiltered vcf files.\
-`vcftools --gzvcf raw_chr"$0".vcf.gz --remove-filtered-all --recode --stdout |bgzip > sites_PASS_chr"$0".vcf.gz`
+`vcftools --gzvcf raw_chr"$0".vcf.gz --remove-filtered-all --recode --stdout |bgzip > sites_PASS_chr"$0".vcf.gz`\
 Output the site without PASS flag from the variant calling unfiltered vcf files.\
-`bcftools isec -C -o sites_not_PASS_chr"$0".bed -Oz raw_chr"$0".vcf.gz sites_PASS_chr"$0".vcf.gz`
+`bcftools isec -C -o sites_not_PASS_chr"$0".bed -Oz raw_chr"$0".vcf.gz sites_PASS_chr"$0".vcf.gz`\
 Concat the not PASS sites\
-`seq 22|awk '{print "zcat sites_not_PASS_chr"$0".bed.gz|cut -f1,2" >> sites_not_PASS_all.bed}' > concat.sh`
-`./concat.sh`
+`seq 22|awk '{print "zcat sites_not_PASS_chr"$0".bed.gz|cut -f1,2" >> sites_not_PASS_all.bed}' > concat.sh`\
+`./concat.sh`\
 Format of the output file\
 `awk '{print $1 "\t" ($2 - 1) "\t" $2}' sites_not_PASS_all.bed|bedtools merge -i - > sites_not_PASS_all_good_format.bed`
 #### remove the not PASS sites from the global positive mask 
