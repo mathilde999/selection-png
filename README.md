@@ -8,6 +8,7 @@ of 20 and downgrading mapping quality for reads containing excessive mismatches 
 sites, we excluded indels, sites with more than two alleles, sites with a maximum missing rate of 5%. We also masked
 sites whose depth of coverage summed across all samples was higher or lower than the sum of the average depth across the
 dataset by a factor of 2-fold.\
+\
 `snakemake -s mask.smk --profile [profile_file]`
 #### create positive mask with coverage mask and mappability mask 
 We create a positive mask using [bedtools v2.29.2](https://bedtools.readthedocs.io/en/latest/index.html) including the 
