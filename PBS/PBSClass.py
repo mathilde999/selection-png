@@ -7,8 +7,9 @@ This file is specially meant to create clases for selscan
 import sys
 
 import allel
-import pandas
 import numpy
+import pandas
+
 import Misc
 
 
@@ -92,6 +93,7 @@ class PBS_Sickit():
             geno = allel.GenotypeArray(
                 callset[0]['calldata/GT'])
             pbs = cls.pbs_cal(geno=geno, popdict=subpopdict, pbspop=pbspop)
+            pbs = numpy.around(pbs, 2)
             temp = pandas.DataFrame({'CHR': callset[0]['variants/CHROM'], 'BP': callset[0]['variants/POS'],
                                      'SNPid': callset[0]['variants/ID'], 'PBS': pbs})
             df = pandas.concat([df, temp], ignore_index=True)
