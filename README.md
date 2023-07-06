@@ -69,7 +69,7 @@ The PBS score of the regions will be the top PBS of the regions uses to create t
 `snakemake -s p_val.smk -kp --jobs 100 --profile [profile_file]--groups intersection=group1 --group-component group1=10`
 ### PBS scan
 #### Running PBS
-`python RunPBS.py PBS.info`
+`python PBS/RunPBS.py --popfile HL_LL_YRI.pop --pbspop Mt_Wilhelm:Daru:YRI --dropna filtered_{chr}.vcf.gz`
 #### PBS score for sliding windows
 We create create sliding windows of X snp with Y snps step and give to each of these regions a PBS that is the average 
 of the PBS of the X SNP that the window is made. We keep only the windows whose PBS score in the 99th percentile: output 
