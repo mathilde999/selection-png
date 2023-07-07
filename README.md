@@ -170,3 +170,12 @@ To run for every phenotype column\
 
 ### Enrichment for blood phenotypes
 `snakemake -s enrich.smk --profile [profile_file]`
+
+### UKBiobank Summary Statistics analysis
+We first downloaded the summary statistics files from publicly available [source](http://www.nealelab.is/uk-biobank). 
+Files can be downloaded from https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/. Both data and index 
+should be downloaded to use our codes. 
+```shell
+wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz
+wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz.tbi
+```
