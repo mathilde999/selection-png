@@ -179,3 +179,16 @@ should be downloaded in the same folder to use our codes.
 wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz
 wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files_tabix/*.tbi
 ```
+To find the closest snp present in the UKBB file set use this command
+```shell
+bash UKBB/UKBB_ClosestSNP.sh <snp.bed> <ukbb.tsv.bgz> > <closest.bed> 
+```
+You need two files to run the code.  
+#### input:   
+First the targeted SNP, written in bed format. Remember UKBB is in gr37, thus your bed file should be also in gr37. Can
+be multiple snp in a same file. Should be just in different lines.
+Second you need any of the tsv file that you have downloaded. As all the files have exactly same snps inside, it does 
+not matter which of the file you use for this command.   
+#### output: 
+It will produce a bed file, where the closest snp will be written. For now, if there is no SNP in UKBB within 1kb 
+upstream or downstream, the code will ignore that snp.   
