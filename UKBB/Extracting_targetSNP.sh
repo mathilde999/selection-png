@@ -1,6 +1,7 @@
-mkdir score
-ls *.bgz | awk -F "/" '{print "python UKBB/Run_ExtractScore.py --bed All.bed "$0" > score/"$NF".out"}'  > Extracting.sh
-sh Extracting.sh
-cat raw/categorical-100940-both_sexes-100940.tsv.bgz.out | cut -f 1 | tail -n +2  > snps.list
-cat snps.list | awk -F ":" '{print "cat <(echo -e \"phenotype\\tp_val\\tbeta\\tbetapercentile\") <(grep -w "$0" raw/*.out | cut -d \"/\" -f 2 | tr \":\" \"\\t\"  | cut -f 1,4,5,6 | sed \"s/.tsv.bgz.out//\" | sort -k2,2n ) > "$1"_"$2".tsv"}' > Out2tsv.sh
-source Out2tsv.sh 
+rm -fR temp/
+mkdir -p temp/score
+ls $2/*.bgz | awk -F "/" -v f=$1 -v p=$3 '{print "python "p"/UKBB/Run_ExtractScore.py --bed "f" "$0" > temp/score/"$NF".out"}'  > temp/Extracting.sh
+sh temp/Extracting.sh
+cat $(ls temp/score/*.out| head -1) | cut -f 1 | tail -n +2  > temp/snps.list
+cat temp/snps.list | awk -F ":" '{print "cat <(echo -e \"phenotype\\tp_val\\tbeta\\tbetapercentile\") <(paste <(ls temp/score/*.out | rev| cut -f 1 -d \"/\"| rev |sed \"s/.tsv.bgz.out//\")  <(grep -w "$0" temp/score/*.out | cut -d \":\" -f 2- | tr \":\" \"\\t\" )  | sort -k2,2n ) > "$1"_"$2".tsv"}' > temp/Out2tsv.sh
+bash temp/Out2tsv.sh

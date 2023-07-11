@@ -1,3 +1,4 @@
+rm -fR temp/
 mkdir -p temp
 tabix -R $1 $2 | cut -f 1,2 | awk '{print $1"\t"$2-1"\t"$2}' > temp/Present.bed
 cat <(cut -f 1,3 $1 ) <(cut -f 1,3 temp/Present.bed ) | sort | uniq -c | awk '{print $1"\t"$2"\t"$3}' | grep -vw "^2" | cut -f 2,3 > temp/notpresent.snps
