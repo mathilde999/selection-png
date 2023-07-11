@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(
                 "coming from UK Bio Bank (UKBB) Neale's lab files")
 parser.add_argument('phenofile', help='the path for the Neales lab phenotype file for UKBB',
                     type=lambda x: Misc.args_valid_file(parser, x))
-parser.add_argument('--bedfile', help='The bed file where a list of snps are written to be extract. remember the snp '
+parser.add_argument('--bed', help='The bed file where a list of snps are written to be extract. remember the snp '
                                       'position in the end or last column and start should be snp-1 bp', required=True,
                     type = lambda x: Misc.args_valid_file(parser, x))
 parser.add_argument('--beta_percent', help='In case you want to calculate the percentile score of the extracted beta '
