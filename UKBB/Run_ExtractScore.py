@@ -27,6 +27,6 @@ if args.plot:
     if not args.beta_percent:
         print("--plot would not work unless --beta_percent is used")
         sys.exit(1)
-betascore = NealeLabClass.UKBBExtract().wrapper(phenofile=args.phenofile, bedfile=args.bedfile,
+betascore = NealeLabClass.UKBBExtract().wrapper(phenofile=args.phenofile, bedfile=args.bed,
                                              beta_percent=args.beta_percent, plot=args.plot, tabix=args.tabixpath)
 betascore.to_csv(sys.stdout, sep='\t', na_rep='nan')
