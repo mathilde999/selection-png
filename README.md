@@ -174,8 +174,8 @@ To run for every phenotype column\
 ### UKBiobank Summary Statistics analysis
 We first downloaded the summary statistics files from publicly available [source](http://www.nealelab.is/uk-biobank). 
 Files can be downloaded from https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/. Both data and index 
-should be downloaded to use our codes. 
+should be downloaded in the same folder to use our codes. 
 ```shell
 wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz
-wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz.tbi
+wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files_tabix/*.tbi
 ```
