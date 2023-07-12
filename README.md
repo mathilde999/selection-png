@@ -98,7 +98,9 @@ The PBS score of the regions will be the top PBS of the regions uses to create t
 #### 4.3. Get p-value for the 10 top regions with random sampling approach 
 `snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]`
 ## 5. Fisher score
-We computed Fisher score  for the same windows used to generate PBS `windows_20SNP_step5.bed`. We then need to generate XP-EHH score for these windows too.
+We computed Fisher score  for the same windows used to generate PBS `windows_20SNP_step5.bed`. 
+
+#### 5.1. Generate XP-EHH score for the sliding windows 
 Make XP-EHH output as a bed file: \
 \
 `cat xpehh_all.out.norm|awk '{print $1 "\t" $2 "\t" $2 "\t" $4}'|tail -n+2 >xpehh.bed`\
@@ -114,15 +116,16 @@ average the XPEHH score of all the snp in each region (top score in the region):
 keep only CHR  START   END     NORM + add header: \
 \
 `cut -f1,2,3,4 windows_XPEHH_final.bed > XPEHH_final.bed`\
-create bed file with fisher score for each regions: \
-keep only regions in the 99 percentile for the Fisher score: \
+#### 5.2. Create bed file with fisher score for each sliding windows: \
+keep only sliding windodws in the 99 percentile for the Fisher score `FisherScore_windows.topSNP.bed`: \
 \
 `python FisherScore/Fish.py --xpehh XPEHH_final.bed --pbs windows_20SNP_step5.bed --out FisherScore_windows`\
 \
-merge the top regions `FisherScore_windows.topSNP.bed` together, score of the regions is the top score. Extract the top 10 regions from it: \
+merge the top regions `FisherScore_windows.topSNP.bed` together, score of the regions is the top score. Extract the top 
+10 regions from it: \
 \
 `bedtools merge -i FisherScore_windows.topSNP.bed -d 10000 -c 4 -o max > top_regions_Fisher_merged.bed`
-#### 5.1. Get p-value for the 10 top regions with random sampling approach 
+#### 5.3. Get p-value for the 10 top regions with random sampling approach 
 `snakemake -srandom_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]`
 ## 6. Relate analysis
 We used [Relate v1.8](https://myersgroup.github.io/relate/) \
@@ -130,16 +133,16 @@ The relate snakemake pipeline is ran with the following command \
 \
 `snakemake -s Relate/Make_trees.smk -kp --profile [profile_file] `\
 \
-and will create several folders in the working directory: \
+and will create several folders in the working directory: 
 #### 6.1. Create relate input file
 The snakemake pipeline will create an input_relate folder including the `*sample`, `*haps`, `*annot` and `*dist` file used by Relate.
-It  also includes the file `poplabel.txt` that is the population files correctly ordered for the futher relate analysis 
+It  also includes the file `poplabel.txt` that is the population files correctly ordered for the further relate analysis 
 #### 6.2. Make trees
 Will create recombination trees for all the samples included in the vcf files. We used the default 
-parameters of 1.25e-8 for the mutation rate and 3000 for the effective population size of haplotypes. The output are `*anc` and `*mut` files in the `trees_all/` directory \
+parameters of 1.25e-8 for the mutation rate and 3000 for the effective population size of haplotypes. The output are `*anc` and `*mut` files in the `trees_all/` directory 
 #### 6.3. Extracting trees
 Trees will be extracted for every population you included in `config.sk`. The extracted trees (`*anc` and `*mut` files) are 
-found in the `extracted_trees/` directory \
+found in the `extracted_trees/` directory 
 #### 6.4. Effective population size
 Effective population size will be estimated for each of the populations you included in the `config.sk` file. We used the 
 default recombination rate of 1.25e-8 and we specified the first time interval from 0 to 10<sup>2</sup> years ago and 
@@ -150,12 +153,12 @@ Outputs (`*coal`) are found in the `pop_size/` folder
 We used [clues v1.0](https://github.com/standard-aaron/clues/) \
 `snakemake -s Clues/Clues.smk --profile [profile_file] --groups create_clues_input=group1 clues=group2 --group-components group1=20 group2=10`
 #### 7.1. Extract local trees with Relate
-The first rule of the pipeline extract the local trees for each SNPs in the list of interest for the population indicated 
-in the `config.sk` file. The `create_clues_input` rule of the snakemake pipeline will sample the branch length for those trees. The branch 
-length of the focal SNP tree is resampled 200 times (`--num_samples 200` option of the `SampleBranchLengths.sh` script ), and each iteration result
-is recorded to estimate the uncertainty in the age estimate of each node. To take the uncertainty in the branch length 
-estimate into account, this is performed this several times (`number_of_test` in the `config.sk` file). For each SNP, we  compute sampled branches X times. 
-They output files `*timeb` is found in the `clues_input/` output directory \
+The first rule `create_clues_input` of the snakemake script extracts the local trees for each SNPs in the list of interest 
+for the population indicated in the `config.sk` file. It samples the branch length for those trees. The branch length of 
+the focal SNP tree is resampled 200 times (`--num_samples 200` option of the `SampleBranchLengths.sh` script ), and each 
+iteration result is recorded to estimate the uncertainty in the age estimate of each node. To take the uncertainty in the 
+branch length estimate into account, this is performed this several times (`number_of_test` in the `config.sk` file). 
+They output files `*timeb` is found in the `clues_input/` output directory 
 #### 7.2. Running clues for each focal trees
 Clues is run for each of the sampled branches output are found in the `clues_output/`directory.
 
