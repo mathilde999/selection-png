@@ -1,5 +1,5 @@
 # selection-png
-Scripts developed and used in [[André et al., biorxiv 2022]](https://doi.org/10.1101/2022.12.15.520226)\
+Scripts developed and used in [André et al., biorxiv 2022](https://doi.org/10.1101/2022.12.15.520226)\
 André, M., Brucato, N., Hudjasov, G., Pankratov, V., Yermakovich, D., …, Mondal, M., Ricaut, F.-X. (2022, December 15). Positive selection in the genomes of two Papua New Guinean populations at distinct altitude levels (p. 2022.12.15.520226). bioRxiv. https://doi.org/10.1101/2022.12.15.520226
 
 ## 1. Creation of a genomic mask 
