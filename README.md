@@ -214,3 +214,17 @@ Second is the downloaded folder where all the UKBB summary statistics files are 
 It will create scores name folder. In which it will dump all the snps in the folder (chr_position.tsv). Inside every 
 file, you will have all the phenotypes with pval_EUR and beta_EUR together, which then can be sorted using an Excel 
 sheet to get the significant values. 
+#### Extract UKBB values for all snps
+In case you want to extract UKBB values for all SNPs (which we have used for random sampling), you can use the code. 
+```shell
+sh <ExtractScore_AllSNP.sh> <UKBB_folder>
+```
+##### input: 
+You just haave to give the folder path where all UKBB summary files are stored.
+##### output:
+It will create Phenotypes.pval.gz files which will be tabix indexed. Meaning you can extract any snp using: 
+```shell
+tabix -h Phenotypes.pval.gz 1:6623020-6623020
+```
+Remember all snp and all phenotype is reading and writing all of very big files. We will suggest rather than put all the
+files is same folder, break it smaller folders and then run this code independently to make it faster.  
