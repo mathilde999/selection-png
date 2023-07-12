@@ -203,7 +203,7 @@ step.
 As these have to be done for all the UKBB phenotypes, you can use this shell script to extract it for all the 
 phenotypes automatically:
 ```shell
-sh <ExtractScore_All.sh> <closest_snp.bed> <UKBB_folder>
+sh <ExtractScore.sh> <closest_snp.bed> <UKBB_folder>
 ```
 ##### input: 
 It has two input.  
