@@ -172,9 +172,9 @@ To run for every phenotype column\
 `snakemake -s enrich.smk --profile [profile_file]`
 
 ### UKBiobank Summary Statistics analysis
-We first downloaded the summary statistics files from publicly available [source](http://www.nealelab.is/uk-biobank). 
-Files can be downloaded from https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/. Both data and index 
-should be downloaded in the same folder to use our codes. 
+We first downloaded the summary statistics [files](http://www.nealelab.is/uk-biobank) of UK bio bank (UKBB) from 
+publicly available. Files can be downloaded from https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/. Both 
+data and index should be downloaded in the same folder to use our codes. 
 #### Download files 
 ```shell
 wget https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_flat_files/*.tsv.bgz
@@ -200,5 +200,17 @@ python UKBB/Run_ExtractScore.py --bed <closest.bed> <ukbb.tsv.bgz>
 ```
 This will extract UKBB results of pval_EUR and beta_EUR for the targeted snp present in closest.bed created in previous
 step. 
-As these have to be done for all the UKBB phenotypes, you can use this command to extract it for all the phenotypes:
+As these have to be done for all the UKBB phenotypes, you can use this shell script to extract it for all the 
+phenotypes automatically:
 ```shell
+sh <ExtractScore_All.sh> <closest_snp.bed> <UKBB_folder>
+```
+##### input: 
+It has two input.  
+First the closest_snp.bed that we have created in the previous step (or any bed file where all the snp is present in 
+UKBB).  
+Second is the downloaded folder where all the UKBB summary statistics files are kept together.  
+##### output: 
+It will create scores name folder. In which it will dump all the snps in the folder (chr_position.tsv). Inside every 
+file, you will have all the phenotypes with pval_EUR and beta_EUR together, which then can be sorted using an Excel 
+sheet to get the significant values. 
