@@ -2,8 +2,8 @@
 Scripts developed and used in [[André et al., biorxiv 2022]](https://doi.org/10.1101/2022.12.15.520226)\
 André, M., Brucato, N., Hudjasov, G., Pankratov, V., Yermakovich, D., Kreevan, R., … Ricaut, F.-X. (2022, December 15). Positive selection in the genomes of two Papua New Guinean populations at distinct altitude levels (p. 2022.12.15.520226). bioRxiv. https://doi.org/10.1101/2022.12.15.520226
 
-### creation of a genomic mask 
-#### create coverage mask 
+## 1. Creation of a genomic mask 
+#### 1.1. Create coverage mask 
 We included in the positive coverage mask sites with a minimum base quality of 20, an alignment minimum mapping quality 
 of 20 and downgrading mapping quality for reads containing excessive mismatches with a coefficient of 50. From these
 sites, we excluded indels, sites with more than two alleles, sites with a maximum missing rate of 5%. We also masked
@@ -11,15 +11,16 @@ sites whose depth of coverage summed across all samples was higher or lower than
 dataset by a factor of 2-fold.\
 \
 `snakemake -s Create_mask/mask.smk --profile [profile_file]`
-#### create positive mask with coverage mask and mappability mask 
+#### 1.2. Create positive mask with coverage mask and mappability mask 
 We create a positive mask using [bedtools v2.29.2](https://bedtools.readthedocs.io/en/latest/index.html) including the 
 site present in both the coverage mask we created `mask_all_sort.bed` and `gr38.mask.bed`, the [mappability mask](https://share.eva.mpg.de/index.php/s/ygfMbzwxneoTPZj) used with [MSMC](https://github.com/stschiff/msmc-tools/tree/master)  liftover to GR38 \
 \
 `bedtools intersect -a mask_all_sort.bed -b gr38.mask.bed > mask_coverage_and_map.bed`
-#### filtering out the variant without PASS flag from the variant calling
+#### 1.3. Filtering out the variant without PASS flag from the variant calling
 Keep only the sites that pass the PASS filter from the variant calling unfiltered vcf files `raw_chr"$0".vcf.gz` \
 \
 `vcftools --gzvcf raw_chr"$0".vcf.gz --remove-filtered-all --recode --stdout |bgzip > sites_PASS_chr"$0".vcf.gz`\
+\
 Output the site without PASS flag from the variant calling unfiltered vcf files `raw_chr"$0".vcf.gz` \
 \
 `bcftools isec -C -o sites_not_PASS_chr"$0".bed -Oz raw_chr"$0".vcf.gz sites_PASS_chr"$0".vcf.gz`\
@@ -32,9 +33,9 @@ Concat bed files with the coordinate of the not PASS sites `sites_not_PASS_chr"$
 Format of the output file `sites_not_PASS_all.bed`\
 \
 `awk '{print $1 "\t" ($2 - 1) "\t" $2}' sites_not_PASS_all.bed|bedtools merge -i - > sites_not_PASS_all_good_format.bed`
-#### remove the not PASS sites `sites_not_PASS_all_good_format.bed` from the global positive mask `mask_coverage_and_map.bed`
+#### 1.4. Remove the not PASS sites from the global positive mask
 `bedtools subtract -a mask_coverage_and_map.bed -b sites_not_PASS_all_good_format.bed > full_positive_mask.bed`
-#### create the mask fasta file 
+#### 1.5. Create the mask fasta file 
 split the positive mask `full_positive_mask.bed` per chr \
 \
 `for chr in 'bedextract --list-chr full_positive_mask.bed'; do bedextract $chr full_positive_mask.bed > full_positive_mask_$chr.bed; done`
@@ -42,24 +43,24 @@ split the positive mask `full_positive_mask.bed` per chr \
 Convert the positive mask to fasta format using the [ancestral genome](https://ftp.ensembl.org/pub/release-93/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh38/) from the Ensembl 93 release `homo_sapiens_ancestor_${chr}.fa.gz` \
 \
 `Create_mask/make_fa_mask.sh`
-### phasing
+## 2. Phasing
 We used [shapeit4 v4.2.2](https://odelaneau.github.io/shapeit4/) \
 \
 `snakemake -s Phasing/shapeit4.smk --profile [profile_file]`
 \
 That snakemake pipeline will create two directories in your working directory. Directory `chr/` includes unphased vcf files
 per chr filtered for the filters indicated in `Phasing/config.sk`.The other directory created is `phased/` that includes all the phased vcf files per chr
-### XP-EHH scan 
+## 3. XP-EHH scan 
 We used [selscan V2.0](https://github.com/szpiech/selscan) with highlanders as the target population and lowlanders as the reference population.\
 Selscan can use phased vcf files separated by chromosome with no missing data. It will also need one population per file.\
 It will also need map files of those vcf files.
-####  create genetic map files for selscan from vcf files
+#### 3.1. Create genetic map files for selscan from vcf files
 `python Selscan/CreatingMapFiles.py --files_path chr/ --vcf`
-#### run selscan
+#### 3.2. Run selscan
 `selscan --xpehh --vcf High_chr{chr}.vcf.gz --vcf-ref Low_chr{chr}.vcf.gz --map High_Low_chr{chr}_GeneticMap.map --out High_chr{chr} --threads 4`
-#### normalization
+#### 3.3. Normalization
 `norm --xpehh --files *.xpehh.out`
-### top region score (target pop)
+#### 3.4. Top region score
 Input is the concatenated files `xpehh_all.out.norm` 
 This script will output the SNP with xpehhnorm in the 99th percentile `top_snp_XPEHH.bed`\
 \
@@ -69,19 +70,19 @@ If you are interested in the top SNP for the reference population (lowlanders in
 This script will output the SNP with xpehhnorm in the 1th percentile `top_snp_XPEHH.bed`\
 `python Selscan\XPEHH_bed_1.py` 
 
-### merge top SNPs in genomic regions
+#### 3.5. Merge top SNPs in genomic regions
 We then merge top SNPs together when they were closer than 10kb with the closest windows  using [bedtools v2.29.2](https://bedtools.readthedocs.io/en/latest/index.html).
 The XP-EHH score of the regions will be the top XP-EHH of the top SNPs uses to create the bigger regions \
 \
 `sort -k1,1 -k2,2n top_snp_XPEHH.bed > sort_top_snp_XPEHH.bed`
 `bedtools merge -i sort_top_snp_XPEHH.bed -d 10000 -c 4 -o max > merged_top_snp_XPEHH.bed`
-####  get p-value for the 10 top regions with random sampling approach 
+#### 3.6. Get p-value for the 10 top regions with random sampling approach 
 `snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]`
 
-### PBS scan
-#### Running PBS
+## 4. PBS scan
+#### 4.1. Running PBS
 `python PBS/RunPBS.py --popfile HL_LL_YRI.pop --pbspop Mt_Wilhelm:Daru:YRI --dropna filtered_{chr}.vcf.gz`
-#### PBS score for sliding windows
+#### 4.2. PBS score for sliding windows
 We create sliding windows of X snp with Y snps step and give to each of these regions a PBS that is the average 
 of the PBS of the X SNP that the window is made with `windows_20SNP_step5.bed`. We keep only the windows whose PBS score in the 99th percentile: 
 `sliding_windows_snp_top_regions_PBS.bed`. It also output `mean_pos_PBS.bed` with the mean pos of the region (mean of 
@@ -94,9 +95,9 @@ We then merge top windows `sliding_windows_snp_top_regions_PBS.bed` together whe
 The PBS score of the regions will be the top PBS of the regions uses to create the bigger regions \
 \
 `bedtools merge -i sliding_windows_snp_top_regions_PBS.bed -d 10000 -c 4 -o max > windows_and_PBS_top_windows_final_merged.bed`
-####  get p-value for the 10 top regions with random sampling approach 
+#### 4.3. Get p-value for the 10 top regions with random sampling approach 
 `snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]`
-### Fisher score
+## 5. Fisher score
 We computed Fisher score  for the same windows used to generate PBS `windows_20SNP_step5.bed`. We then need to generate XP-EHH score for these windows too.
 Make XP-EHH output as a bed file: \
 \
@@ -121,62 +122,62 @@ keep only regions in the 99 percentile for the Fisher score: \
 merge the top regions `FisherScore_windows.topSNP.bed` together, score of the regions is the top score. Extract the top 10 regions from it: \
 \
 `bedtools merge -i FisherScore_windows.topSNP.bed -d 10000 -c 4 -o max > top_regions_Fisher_merged.bed`
-#### get p-value for the 10 top regions with random sampling approach 
+#### 5.1. Get p-value for the 10 top regions with random sampling approach 
 `snakemake -srandom_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]`
-### Relate analysis
+## 6. Relate analysis
 We used [Relate v1.8](https://myersgroup.github.io/relate/) \
 The relate snakemake pipeline is ran with the following command \
 \
 `snakemake -s Relate/Make_trees.smk -kp --profile [profile_file] `\
 \
 and will create several folders in the working directory: \
-#### Create relate input file
+#### 6.1. Create relate input file
 The snakemake pipeline will create an input_relate folder including the `*sample`, `*haps`, `*annot` and `*dist` file used by Relate.
 It  also includes the file `poplabel.txt` that is the population files correctly ordered for the futher relate analysis 
-#### Make trees
+#### 6.2. Make trees
 Will create recombination trees for all the samples included in the vcf files. We used the default 
 parameters of 1.25e-8 for the mutation rate and 3000 for the effective population size of haplotypes. The output are `*anc` and `*mut` files in the `trees_all/` directory \
-#### Extracting trees
+#### 6.3. Extracting trees
 Trees will be extracted for every population you included in `config.sk`. The extracted trees (`*anc` and `*mut` files) are 
 found in the `extracted_trees/` directory \
-#### Effective population size
+#### 6.4. Effective population size
 Effective population size will be estimated for each of the populations you included in the `config.sk` file. We used the 
 default recombination rate of 1.25e-8 and we specified the first time interval from 0 to 10<sup>2</sup> years ago and 
 then the periods between 10<sup>2</sup> and 10<sup>7</sup> is split into successive bins with a step of 10<sup>0.1</sup> years. We used Relate default 
 parameters of 28 years per generation, the number of cycles and the fractions of trees to be dropped.\
 Outputs (`*coal`) are found in the `pop_size/` folder 
-### Clues analysis 
+## 7. Clues analysis 
 We used [clues v1.0](https://github.com/standard-aaron/clues/) \
 `snakemake -s Clues/Clues.smk --profile [profile_file] --groups create_clues_input=group1 clues=group2 --group-components group1=20 group2=10`
-#### Extract local trees with Relate
+#### 7.1. Extract local trees with Relate
 The first rule of the pipeline extract the local trees for each SNPs in the list of interest for the population indicated 
 in the `config.sk` file. The `create_clues_input` rule of the snakemake pipeline will sample the branch length for those trees. The branch 
 length of the focal SNP tree is resampled 200 times (`--num_samples 200` option of the `SampleBranchLengths.sh` script ), and each iteration result
 is recorded to estimate the uncertainty in the age estimate of each node. To take the uncertainty in the branch length 
 estimate into account, this is performed this several times (`number_of_test` in the `config.sk` file). For each SNP, we  compute sampled branches X times. 
 They output files `*timeb` is found in the `clues_input/` output directory \
-#### Running clues for each focal trees
+#### 7.2. Running clues for each focal trees
 Clues is run for each of the sampled branches output are found in the `clues_output/`directory.
 
-### Association genotype phenotype
+## 8. Association genotype phenotype
 We used [GEMMA v0.98.4](https://github.com/genetics-statistics/GEMMA/tree/master)
-#### convert vcf files to bed files
+#### 8.1. Convert vcf files to bed files
 Using [plink v1.9](https://www.cog-genomics.org/plink/).These files will be used to computed the relatedness matrice `output/Papuan_with_pheno_centered.cXX.txt`\
 \
 `plink --vcf unrelated_filtered_masked.vcf.gz --keep papuans.ID --output-missing-genotype 0 --double-id --make-bed --out unrelated_masked_with_pheno`
-#### Extract the candidate SNPs and convert to bed file format.
+#### 8.2. Extract the candidate SNPs and convert to bed file format.
 These file will be used to compute association only for the top SNP\
 \
 `plink --vcf unrelated_filtered_masked.vcf.gz --keep papuans.ID  --extract range TopSNP.bed --output-missing-genotype 0 --double-id --set-missing-var-ids @:# --make-bed --out Papuan_unrelated_masked_with_pheno_Top_SNP`
-#### add the pheno info to the fam files from the top SNP and the all site file
+#### 8.3. Add the pheno info to the fam files from the top SNP and the all site file
 `python create_fam.py Papuan_unrelated_masked_with_pheno.fam residuals_pheno.cov`
 `python create_fam.py Papuan_unrelated_masked_with_pheno_Top_SNP.fam residuals_pheno.cov`
-#### compute the relatedness matrices
+#### 8.4. Compute the relatedness matrices
 `gemma-0.98.4-linux-static-AMD64 -bfile Papuan_unrelated_masked_with_pheno -gk 1 -o Papuan_with_pheno_centered`
-#### gemma association
+#### 8.5. Gemma association
 To run for every phenotype column\
 \
 `gemma-0.98.4-linux-static-AMD64 -bfile Papuan_unrelated_masked_with_pheno_Top_SNP -k output/Papuan_with_pheno_centered.cXX.txt -notsnp -miss 1 -lmm 4 -n [pheno_column] -outdir results_centered/ -o [pheno_name] `
 
-### Enrichment for blood phenotypes
+## 9. Enrichment for blood phenotypes
 `snakemake -s Enrichment_UKBB/enrich.smk --profile [profile_file]`
