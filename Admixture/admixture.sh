@@ -1,8 +1,6 @@
 #!/bin/bash
 trial=$1
 RANDOM=$$
-module load any/admixture/1.3.0
-module load any/plink/1.9
 mkdir trial_${trial}
 
 # convert ped to bed format
