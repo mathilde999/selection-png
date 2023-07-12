@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+dependencies:
+    - vcftools
+    - r-base
+    - r-essentials

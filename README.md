@@ -50,7 +50,11 @@ per chr filtered for the filts indicated in the config.sk.The other directory cr
 ### XP-EHH scan 
 We used [selscan V2.0](https://github.com/szpiech/selscan) [[Sabeti, *et al.* Nature 2007]](https://www.nature.com/articles/nature06250)
 #### create map files
-`python Selscan/CreatingMapFiles.py --files_path chr/ --vcf`
+```shell
+vcftools --gzvcf phased_autosomes.vcf.gz --plink --chr chr1 --out chr1_input
+Rscript GeneticMap/GeneticMapIntrapolate.r <chr1_input.map> <chr1_output.map> <Hapmap_chr1.map>
+```
+You need hapmap genetic map as an input file, to interpolate recombination rate for your own data set. 
 #### run selscan
 `selscan --xpehh --vcf High_chr{chr}.vcf.gz --vcf-ref Low_chr{chr}.vcf.gz --map High_Low_chr{chr}_GeneticMap.map --out High_chr{chr} --threads 4`
 #### normalization
