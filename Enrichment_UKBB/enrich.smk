@@ -5,6 +5,7 @@ workdir: os.getcwd()
 include: os.getcwd() + '/config.sk'
 import pybedtools
 import glob
+import pandas as pd
 from statsmodels.distributions.empirical_distribution import ECDF
 
 
@@ -25,8 +26,6 @@ def random_sampling(windows_df, number_to_select, blood_site_bed):
     #we return the number of windows with at least one site associated with blood
     number_site = intersection_df['blood_assoc'].sum()
     return number_site
-
-
 
 
 """
@@ -53,17 +52,13 @@ for i in range(len(n_region_sign_list)):
     list_info_regions.append(key)
 
 
-"""
-The bed file with the pval for all the pheno is huge. We will define in how many chuncks we need to read and filter it
-"""
-
 
 """
 We build the distribution of the count of how many windows include at least one significant association with a
-blood phenotype in the UKbiobank by X random non-sliding windows of 2000bp (1kb upstream and 1kb downstream) including
-at least 1 site with a significant asssociation to any phenotype in the UKbiobank.
+blood phenotype in the UKbiobank by X random non-sliding windows of 200bp (100bp upstream and 100bp downstream) including
+at least 1 site with a significant asssociation with any phenotype in the UKbiobank.
 """
-import pandas as pd
+
 
 rule all:
     input:
@@ -153,7 +148,7 @@ rule create_non_overlapping_windows:
         end = chr_dic[chr]
         region = " ".join([str(chr), str(start), str(end)])
         autosomes_bed = pybedtools.BedTool(region,from_string=True)
-        #create windows of size 2kb
+        #create windows of size X from the config file
         wind_size = params.wind_size
         windows_bed = autosomes_bed.window_maker(autosomes_bed,w=wind_size)
         #load pheno bed
@@ -172,10 +167,10 @@ Get a bed of the site that have a significant association with at least one bloo
 """
 rule blood_sign_site:
     input:
-        pheno_sign = "pheno_sum/pheno_sign_sum_chr{chr}.bed.gz", #bed file with info for site that are associated significiantlyt to at least one pheno
+        pheno_sign = "pheno_sum/pheno_sign_sum_chr{chr}.bed.gz", #bed file with info for site that are significantly associated with at least one pheno
         blood_pheno = list_blood_pheno
     output:
-        blood_sign = "pheno_sum/blood_sign_sum_chr{chr}.bed.gz" #bed file with info for site that are associated significiantlyt to at least one blood pheno
+        blood_sign = "pheno_sum/blood_sign_sum_chr{chr}.bed.gz" #bed file with info for site that are associated significantly associated with at least one blood pheno
     resources:
         mem_mb = 100000
     run:
@@ -246,7 +241,7 @@ rule get_pval:
         # Get p-value of the nuber of blood assoc based on the random (null) distribution
         ecdf_score = ECDF(list_sum)
         pval_score_region = ecdf_score(number_assoc_blood)
-        line_a = "Get p-value of the obersver site sign assoc with blood (" + str(number_assoc_blood) + " for " +str(number_random_windows)+\
+        line_a = "Get p-value of the observed site sign assoc with blood (" + str(number_assoc_blood) + " for " +str(number_random_windows)+\
                  " regions with significant assoc based on the random (null) distribution"
         line_b = 'P(random_distrib < '+ str(number_assoc_blood) +' regions with at least one site sign assoc to blood pheno) = ' + str(pval_score_region) + "\n"
         lines = line_a + line_b
