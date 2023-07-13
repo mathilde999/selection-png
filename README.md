@@ -64,8 +64,10 @@ Selscan can use phased vcf files separated by chromosome with no missing data. I
 It will also need map files of those vcf files.    
 #### 3.1. Create genetic map files for selscan from vcf files
 ```shell
-python Selscan/CreatingMapFiles.py --files_path chr/ --vcf
+vcftools --gzvcf phased_autosomes.vcf.gz --plink --chr chr1 --out chr1_input
+Rscript GeneticMap/GeneticMapIntrapolate.r <chr1_input.map> <chr1_output.map> <Hapmap_chr1.map>
 ```
+You need hapmap genetic map as an input file, to interpolate recombination rate for your own data set.
 #### 3.2. Run selscan 
 ```shell
 selscan --xpehh --vcf High_chr{chr}.vcf.gz --vcf-ref Low_chr{chr}.vcf.gz --map High_Low_chr{chr}_GeneticMap.map --out High_chr{chr} --threads 4
@@ -156,7 +158,7 @@ bedtools merge -i FisherScore_windows.topSNP.bed -d 10000 -c 4 -o max > top_regi
 ```  
 #### 5.3. Get p-value for the 10 top regions with random sampling approach  
 ```shell  
-snakemake -srandom_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]
+snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]
 ``` 
 ## 6. Relate analysis    
 We used [Relate v1.8](https://myersgroup.github.io/relate/)  
@@ -195,7 +197,8 @@ They output files `*timeb` is found in the `clues_input/` output directory
 #### 7.2. Running clues for each focal trees    
 Clues is run for each of the sampled branches output are found in the `clues_output/`directory.    
     
-## 8. Association genotype phenotype  We used [GEMMA v0.98.4](https://github.com/genetics-statistics/GEMMA/tree/master)    
+## 8. Association genotype phenotype 
+We used [GEMMA v0.98.4](https://github.com/genetics-statistics/GEMMA/tree/master)    
 #### 8.1. Convert vcf files to bed files    
 Using [plink v1.9](https://www.cog-genomics.org/plink/).These files will be used to computed the relatedness matrice
 `output/Papuan_with_pheno_centered.cXX.txt`
@@ -269,7 +272,7 @@ In case you want to extract UKBB values for all SNPs (which we have used for ran
 sh <ExtractScore_AllSNP.sh> <UKBB_folder>  
 ```  
 ##### input:   
-You just haave to give the folder path where all UKBB summary files are stored.  
+You just have to give the folder path where all UKBB summary files are stored.  
 ##### output:  
 It will create Phenotypes.pval.gz files which will be tabix indexed. Meaning you can extract any snp using:   
 ```shell  
@@ -278,7 +281,11 @@ tabix -h Phenotypes.pval.gz 1:6623020-6623020
 Remember all snp and all phenotype is reading and writing all of very big files. We will suggest rather than put all the  
 files is same folder, break it smaller folders and then run this code independently to make it faster.    
   
-## 9.6. Enrichment for blood phenotypes  
+#### 9.6. Enrichment for blood phenotypes
+Will we use the file `pval_EUR.tsv.bgz`  generated in the precedent step to random sample 200bp (or whichever `size_windows_bp` you put in `config.sk`) 
+windows including at least one SNP significantly associated with at least one phenotype in the UKBB and store how many of these random 
+windows include at least one SNP significantly associated with at least one phenotype of the [blood_count category](https://biobank.ndph.ox.ac.uk/ukb/label.cgi?id=100081)
+of the UKBB. We will compare this count distribution to the number of assocition with blood pheno found in our target population.
 ```shell  
 snakemake -s UKBB/enrich.smk --profile [profile_file]
-````
+```
