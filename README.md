@@ -48,15 +48,7 @@ We used [shapeit4 v4.2.2](https://odelaneau.github.io/shapeit4/) \
 \
 `snakemake -s Phasing/shapeit4.smk --profile [profile_file]`
 \
-That snakemake pipeline will create two directories in your working directory. Directory `chr/` includes unphased vcf files
-per chr filtered for the filters indicated in `Phasing/config.sk`.The other directory created is `phased/` that includes all the phased vcf files per chr
-## 3. XP-EHH scan 
-We used [selscan V2.0](https://github.com/szpiech/selscan) with highlanders as the target population and lowlanders as the reference population.\
-Selscan can use phased vcf files separated by chromosome with no missing data. It will also need one population per file.\
-It will also need map files of those vcf files.
-#### 3.1. Create genetic map files for selscan from vcf files
-`python Selscan/CreatingMapFiles.py --files_path chr/ --vcf`
-#### 3.2. Run selscan
+
 `selscan --xpehh --vcf High_chr{chr}.vcf.gz --vcf-ref Low_chr{chr}.vcf.gz --map High_Low_chr{chr}_GeneticMap.map --out High_chr{chr} --threads 4`
 #### 3.3. Normalization
 `norm --xpehh --files *.xpehh.out`
@@ -181,6 +173,3 @@ These file will be used to compute association only for the top SNP\
 To run for every phenotype column\
 \
 `gemma-0.98.4-linux-static-AMD64 -bfile Papuan_unrelated_masked_with_pheno_Top_SNP -k output/Papuan_with_pheno_centered.cXX.txt -notsnp -miss 1 -lmm 4 -n [pheno_column] -outdir results_centered/ -o [pheno_name] `
-
-## 9. Enrichment for blood phenotypes
-`snakemake -s Enrichment_UKBB/enrich.smk --profile [profile_file]`
