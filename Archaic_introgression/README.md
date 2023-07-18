@@ -12,7 +12,7 @@ https://github.com/LauritsSkov/Introgression-detection <br>
 4. Skov_pipeline.hmm.sh # training and decoding by the hmmix model <br>
 5. laucnh_Skov_pipeline.sh # launching 2-4 bullet points in sbatch mode for the regions of interest <br>
 
-A) **process_res** contains the following scripts for proccessing the hmmix output <br>
+B) **process_res** contains the following scripts for proccessing the hmmix output <br>
 
 Introgression_processing.workflow.R # includes the workflow for finding the top frequent haplotype per candidate region for selection <br>
 Pairwise_comparison.chr1_GBP.R # includes the counting of the pairwise distance between archaics in GBP region on chr1 <br>
