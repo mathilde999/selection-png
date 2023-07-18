@@ -126,9 +126,9 @@ res$chrom <- gsub("^","chr",res$chrom)
 
 #for i in {1..4} {6..10} {12..14} {17..19} 22; do
 #bcftools view -R snps.res.all.tsv -S High_Low.ID ../run_hmmix/vcfs_all_positions/phasing/chr${i}_phased.YRI_PAP_gen_vcf.bcf -Ob |\
-#vcftools --bcf - --hap-r2 --min-r2 0.05 --out aux/chr$i && bgzip -c aux/chr$i.hap.ld > aux/chr$i.hap.ld.gz && rm aux/chr$i.hap.ld; done
+#vcftools --bcf - --hap-r2 --min-r2 0.05 --out auxiliary_r2/chr$i && bgzip -c auxiliary_r2/chr$i.hap.ld > auxiliary_r2/chr$i.hap.ld.gz && rm auxiliary_r2/chr$i.hap.ld; done
 
-#cd aux; mdkir res
+#cd auxiliary_r2; mdkir res
 
 #for i in {1..4} {6..10} {12..14} {17..19} 22; do Rscript simplets.collapse.R $i; done
 #for i in res/chr*haplotypes.R2_0_5.tsv; do tail -n+2 $i >> haplotypes.R2_0_5.tsv; done
@@ -137,13 +137,13 @@ res$chrom <- gsub("^","chr",res$chrom)
 
 ## processing the raw results
 
-db <- fread("aux/haplotypes.R2_0_5.tsv")
+db <- fread("auxiliary_r2/haplotypes.R2_0_5.tsv")
 
 ## to decrease the number of spurious regions, 
 ## we restricted our analysis to inferred regions of introgression longer than 15kb and having more than or equal to 5 aSNPs
 db2 <- db[db$N_aSNP >= 5 & db$length > 15000,]
 
-df <- fread("aux/aSNPs.R2_0_5.tsv")
+df <- fread("auxiliary_r2/aSNPs.R2_0_5.tsv")
 
 db2 <- merge(df,db2)
 db2$chr_st_end %>% unique() %>% length()
