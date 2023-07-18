@@ -25,7 +25,7 @@ db_Skov <- db_Skov[db_Skov$end-db_Skov$start != 0,] # step_2: removing artifacts
 db_Skov2 <- db_Skov[db_Skov$mean_prob >= 0.8 & db_Skov$admixpopvariants >= 1,] #step_3: filtering by mean_prob and archaic variants
 str(db_Skov2)
 
-## in this set-up, analyis was launched and concatenated for all sample in the dataset, 
+## in this set-up, analysis was launched and concatenated for all samples in the dataset, 
 ## here we're keeping only HL and LL PNG populations
 smlp <- fread("High_Low.ID", header = F)$V1 
 db_Skov2$sample <-gsub('.{5}$', '', db_Skov2$haplo)
@@ -44,7 +44,7 @@ str(beds)
 
 write.table(beds[order(beds$CHR,beds$START,beds$END),1:3],"candidates.44.bed", col.names = F, row.names = F, sep = "\t", quote = F)
 
-# even though it could be launched via R, the person in charge still prefers cmd tool
+# eventhough it could be launched via R, the person in charge still prefers cmd tool
 system("bedtools intersect -a candidates.44.bed -b hmmix.filtered.bed -wao > overlap.bed") 
 
 
@@ -103,7 +103,7 @@ write.table(res,"hmmix_segements.per_sample.per_regions.filtered_conservative.ts
 
 
 
-##### PART 3: colapsing individual-level results into regions of introgression
+##### PART 3: collapsing individual-level results into regions of introgression
 
 
 ## gathering from observation data all aSNPs; that's hard to share this data, so we share the resulting table only
@@ -131,16 +131,16 @@ res$chrom <- gsub("^","chr",res$chrom)
 #cd aux; mdkir res
 
 #for i in {1..4} {6..10} {12..14} {17..19} 22; do Rscript simplets.collapse.R $i; done
-#for i in res/chr*haplotypes.R2_0_5.tsv; do tail -n+2 $i >> haplotypes.R2_0_5.v2.tsv; done
-#for i in res/chr*.aSNPs.R2_0_5.tsv; do tail -n+2 $i >> aSNPs.R2_0_5.v2.tsv; done
+#for i in res/chr*haplotypes.R2_0_5.tsv; do tail -n+2 $i >> haplotypes.R2_0_5.tsv; done
+#for i in res/chr*.aSNPs.R2_0_5.tsv; do tail -n+2 $i >> aSNPs.R2_0_5.tsv; done
 
 
-## proccessing the raw results
+## processing the raw results
 
 db <- fread("aux/haplotypes.R2_0_5.tsv")
 
 ## to decrease the number of spurious regions, 
-## we restricted our analysis to inffered regions of introgression longer than 15kb and having more than or equal to 5 aSNPs
+## we restricted our analysis to inferred regions of introgression longer than 15kb and having more than or equal to 5 aSNPs
 db2 <- db[db$N_aSNP >= 5 & db$length > 15000,]
 
 df <- fread("aux/aSNPs.R2_0_5.tsv")
@@ -154,8 +154,8 @@ db2_gr <- db2 %>% group_by(chr_st_end) %>%
 
 df_res <- data.frame()
 
-## the complex function to find overlap between aSNP linked by R2 >= 0.5 (regions of intrgoression)
-## and the aSNPs in individual intrgoressed haplotypes
+## the complex function to find overlap between aSNP linked by R2 >= 0.5 (regions of introgression)
+## and the aSNPs in individual introgressed haplotypes
 
 #gettbl <- function(i){
 #  name <- res$sample[i]
@@ -193,7 +193,7 @@ df_res <- data.frame()
 ## and the function applying
 
 #new_res <- lapply(1:nrow(res), function(i) gettbl(i)) %>% bind_rows()
-#write.table(new_res,"Skov_segements_per_sample.grouping.tsv", quote = F, row.names = F, sep = "\t")
+#write.table(new_res,"hmmix.segements_per_sample.grouping.tsv", quote = F, row.names = F, sep = "\t")
 
 new_res <- fread("hmmix.segements_per_sample.grouping.tsv")
 new_res2 <- new_res[!is.na(new_res$chr_st_end),]
@@ -230,7 +230,7 @@ sums_res <- res2 %>% group_by(chr_st_end,CHR,START,END,pop) %>%
 sums_tmp <- res2 %>% group_by(chr_st_end,CHR,START,END,plain_origin) %>% 
   summarise(orig_counts=n()) %>% filter(orig_counts == max(orig_counts))
 
-## hot fix for two rare haplotypes of "ambiguous" category
+## hotfix for two rare haplotypes of "ambiguous" category
 sums_tmp[duplicated(sums_tmp[,1:4]) | duplicated(sums_tmp[,1:4], fromLast=TRUE),]
 sums_tmp$plain_origin[duplicated(sums_tmp[,1:4]) | duplicated(sums_tmp[,1:4], fromLast=TRUE)] <- "ambiguous"
 sums_tmp <- sums_tmp %>% unique()
@@ -239,7 +239,7 @@ sums_tmp <- sums_tmp %>% unique()
 sums_tmp2 <- res2 %>% group_by(chr_st_end,CHR,START,END) %>% 
   summarise(total_counts=n())
 
-## counting ancestry frequencies, merging and countring frequency
+## counting ancestry frequencies, merging and counting frequency
 sums_tmp <- merge(sums_tmp,sums_tmp2)
 sums_tmp$category_ratio <- sums_tmp$orig_counts/sums_tmp$total_counts
 sums_res_tmp <- merge(sums_res,sums_tmp[,c(1:5,8)])
