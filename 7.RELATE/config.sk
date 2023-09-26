@@ -1,0 +1,8 @@
+vcf='CCDG_14151_B01_GRM_WGS_2020-08-05_chr{chr}.filtered.shapeit2-duohmm-phased' # phased vcf from 1000G high coverage
+popfile='example.poplabel' # pop file ID pop1 pop2 sex separated with space. sex can be "NA". No need of a specific order
+kept_ID='../example_dataset/example.ID'
+ancestor_file='homo_sapiens_ancestor_{chr}.fa.gz' # ancestor file in fasta format from Ensembl
+map_file='genetic_map_hg38_chr{chr}.txt.gz' # recombination map per chr (here from Eagle_map_GR38) in the shapeit format "position COMBINED_rate(cM/Mb) Genetic_Map(cM)"
+mask_file='20160622.chr{chr}.mask.fasta.gz' # mask file per chr in fasta format, for this example we used the Strict mask from 1000G
+POP_TO_EXTRACT=['YRI','CHB','CEU'] # pop for which you want to extract a tree for and compute population size
+Relate_Dir = '/relate_v1.1.8_x86_64_static' # directory to your relate version

@@ -1,0 +1,3 @@
+regions_bed = "regions_of_interest.bed" # regions for which you want to get the pvalue
+selection_file = "CEU_windows_20SNP_step5.bed" # selection scan results
+score_name = "pbs_mean" #or xpehh, pbs_mean or fisher

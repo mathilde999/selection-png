@@ -1,0 +1,7 @@
+arch_1	arch_2	absolut_difference	leng_comp	ratio_difference
+Denisova	AltaiNeandertal	27	201	0.0671641791044776
+Denisova	Vindija33.19	168	201	0.417910447761194
+Denisova	Chagyrskaya_Phalanx	314	201	0.781094527363184
+AltaiNeandertal	Vindija33.19	155	201	0.385572139303483
+AltaiNeandertal	Chagyrskaya_Phalanx	303	201	0.753731343283582
+Vindija33.19	Chagyrskaya_Phalanx	154	201	0.383084577114428
