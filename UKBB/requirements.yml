@@ -1,8 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-    - numpy
-    - pandas
-    - scipy
-    - matplotlib
-    - htslib

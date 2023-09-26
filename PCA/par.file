@@ -1,7 +1,0 @@
-genotypename:   all_biSNP_PASS_maf_unrelated_VIFLDPruned.ped
-snpname:    all_biSNP_PASS_maf_unrelated_VIFLDPruned.map
-indivname:  all_biSNP_PASS_maf_unrelated_VIFLDPruned.ped
-evecoutname:    all_biSNP_PASS_maf_unrelated_VIFLDPruned.evec
-evaloutname:    all_biSNP_PASS_maf_unrelated_VIFLDPruned.eval
-numoutlieriter: 0
-familynames:    NO

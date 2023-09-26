@@ -1,0 +1,5 @@
+vcf_file = 'example_dataset/example_raw_chr{chr}.vcf.gz'
+map_file = 'genetic_map_hg38_chr{chr}.txt.gz' # recombination map (here Eagle_map_GR38) in the format "chr position COMBINED_rate(cM/Mb) Genetic_Map(cM)"
+kept_ID ='example_dataset/example.ID'
+vcftoolsfilter = '--max-alleles 2 --min-alleles 2 --remove-indels --max-missing 0.95 --remove-filtered-all'
+positiv_mask= '1.mask/full_positive_mask_chr22.bed'

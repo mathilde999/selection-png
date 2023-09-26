@@ -4,9 +4,6 @@ import pandas as pd
 workdir: os.getcwd()
 include: os.getcwd() + '/config.sk'
 import scipy.stats
-import statsmodels.api as sm
-from statsmodels.graphics.gofplots import ProbPlot
-import matplotlib.pyplot as plt
 import glob
 """
 Functions
@@ -28,9 +25,10 @@ def random_region(selection_score_df, score_name):
     selection_score_df[['start', 'end']] = selection_score_df[['start', 'end']].astype(int)
     # Sort the DataFrame by chromosomal position
     selection_score_df = selection_score_df.sort_values(by=['chrom', 'start'])
+    print("this is selection score", selection_score_df.head())
     list_all_chr=[]
     for chr in range(1,23):
-        selection_score_df_chr = selection_score_df[selection_score_df["chrom"] == chr]
+        selection_score_df_chr = selection_score_df[selection_score_df["chrom"] == "chr"+str(chr)]
         #list where we store the kept regions
         selected_regions=[]
         # Iterate over the sorted BED file
@@ -52,26 +50,20 @@ def random_region(selection_score_df, score_name):
 
 def read_selection_score(file_name,score_name):
     if score_name == "xpehh":
-        selection_df = pd.read_csv(file_name,sep="\t",usecols=["CHR", "BP", "NORM"])
-        selection_df["chrom"] = selection_df["CHR"]
-        selection_df["start"] = selection_df["BP"] -1
-        selection_df["end"] = selection_df["BP"]
-        selection_df["xpehh"] = selection_df["NORM"]
+        selection_df = pd.read_csv(file_name,sep="\t",usecols=["id", "pos", "normxpehh"])
+        chr=selection_df.iloc[0]['id'].split(':')[0]
+        selection_df['id']="chr"+str(chr)
+        selection_df.columns = ['chrom', 'end', 'xpehh']
+        selection_df["start"] = selection_df["end"] -1
         selection_df = selection_df[selection_df['xpehh'].notnull()]
         selection_df = selection_df[["chrom", "start", "end", "xpehh"]]
-    elif score_name == "pbs":
-        selection_df = pd.read_csv(file_name,sep="\t",usecols=["CHR", "BP", "PBS"])
-        selection_df["chrom"] = selection_df["CHR"]
-        selection_df["start"] = selection_df["BP"] - 1
-        selection_df["end"] = selection_df["BP"]
-        selection_df["pbs"] = selection_df["PBS"]
-        selection_df = selection_df[selection_df['pbs'].notnull()]
-        selection_df = selection_df[["chrom", "start", "end", "pbs"]]
     elif score_name == "pbs_mean":
-        selection_df = pd.read_csv(file_name,sep="\t",names=["chrom", "start", "end", "pbs_mean"])
+        selection_df = pd.read_csv(file_name,sep="\t")
+        selection_df.columns = ["chrom", "start", "end", "pbs_mean"]
         selection_df = selection_df[selection_df['pbs_mean'].notnull()]
     elif score_name =="fisher":
-        selection_df = pd.read_csv(file_name,sep="\t",names=["chrom", "start", "end", "fisher"])
+        selection_df = pd.read_csv(file_name,sep="\t")
+        selection_df.columns = ["chrom", "start", "end", "fisher"]
         selection_df = selection_df[selection_df['fisher'].notnull()]
     return selection_df
 
@@ -101,6 +93,7 @@ rule all:
     input:
         expand("out_" + score_name + "/output_enrich_" + score_name + "_{name}.pval", name=names_regions)
 
+
 rule intersection:
     input:
         score = selection_file
@@ -116,6 +109,7 @@ rule intersection:
         score=params.score
         #open selection file depending on selection score used
         score_df = read_selection_score(input.score,score)
+        print("this is raw selection file for target windows",score_df)
         #find intersection regions on the selection score file
         intersection_bed = intersection_region(wildcards.name, regions_dic, score_df)
         intersection_df = intersection_bed.to_dataframe()
@@ -136,6 +130,7 @@ rule random_windows_to_keep:
     run:
         score = params.score
         score_df = read_selection_score(input.selection,score)
+        print("this is raw selection file for random windows", score_df)
         windows_to_keep=random_region(score_df, score)
         windows_to_keep.to_csv(output.random_regions,sep="\t",index=False)
 
@@ -169,3 +164,28 @@ rule p_val_enrich:
         file1 = open(output.out,"w")
         file1.writelines(line_a + line_b)
         file1.close()
+
+rule concat:
+    """
+    Concat (LD pruned) significant SNPs files per CHR together. 
+    """
+    input:
+        top_region = expand("out_" + score_name + "/{name}_" + score_name + "_interesect.out",name=names_regions)
+    output:
+        top_region = "out_" + score_name + "/top_score_" + score_name + "_interesect.out"
+    params:
+        path="out_" + score_name + "/",
+        score= score_name
+    resources:
+        mem_mb=4000
+    run:
+        score=params.score
+        all_filenames_LD = [i for i in glob.glob(f"{params.path}/*{'_interesect.out'}")]
+        list_df = [pd.read_csv(f,delimiter='\t') for f in all_filenames_LD]
+        list_max = [f[score].astype(float).min() if score == "xpehh" and f[score].mean() < 0
+                    else f[score].astype(float).max() for f in list_df]
+        #list_name = [s.replace(params.path+"/",'') for s in list_df]
+        #list_name = [s.replace("/"+ score + "_interesect.out",'') for s in list_name]
+        df = pd.DataFrame(list_max, columns=[score])
+        df['color']="red"
+        df.to_csv(output.top_region,sep="\t",index=False)

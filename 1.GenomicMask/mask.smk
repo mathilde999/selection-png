@@ -5,9 +5,6 @@ import pandas as pd
 workdir: os.getcwd()
 include: os.getcwd()+'/config.sk'
 
-# print (modules)
-shell.prefix('module load '+ modules)
-
 #create the name of the regions using the windows bed
 def create_region_pos(row):
     return("chr"+str(row["chr"])+":"+str(row["beg"])+"-"+str(row["end"]))
@@ -76,6 +73,7 @@ rule sort_bed:
         sort -k1,1 -k2,2n {input} > {params.bed}
         gzip {params.bed}
         """
+
 
 
 

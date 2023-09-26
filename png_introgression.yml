@@ -1,0 +1,16 @@
+name: png_introgression
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r=4.0.3
+  - r-data-table=1.14.0
+  - r-dplyr=1.1.2
+  - python=3.9.12
+  - py-numpy=1.22.4
+  - hmmix
+  - parallel=20210922
+  - bcftools=1.16
+  - vcftools=0.1.14
+  - shapeit4=4.2.2

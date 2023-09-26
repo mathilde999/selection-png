@@ -1,0 +1,25 @@
+name: png_selection
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.9.13
+  - numpy=1.23.1
+  - bcftools=1.11
+  - htslib=1.11
+  - vcftools=0.1.14
+  - snakemake=7.32.3
+  - vcftools=0.1.14
+  - pandas=1.4.3
+  - bedtools=2.29.2
+  - plink=1.90b6.21
+  - eigensoft=7.2.1
+  - admixture=1.3
+  - shapeit4=4.2.2
+  - conda-forge::r-base
+  - r-ggplot2
+  - scikit-allel=1.3.6
+  - pybedtools
+  - numba
+  - scipy.stat

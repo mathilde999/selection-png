@@ -1,0 +1,5 @@
+bam_list= "example_dataset/list_bam.txt"
+ref_file= "Homo_sapiens_assembly38.fasta"
+mean_coverage= 672.690063
+windows_bed= "windows.bed"
+convert_vcf = 'VCF_to_BED.py'

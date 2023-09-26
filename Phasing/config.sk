@@ -1,6 +1,0 @@
-vcf_file = 'combined.vcf.gz'
-map_file = 'Eagle_map_GR38/genetic_map_hg38_chr{chr}.txt.gz' # recombination map in the format "chr position COMBINED_rate(cM/Mb) Genetic_Map(cM)"
-kept_ID ='unrelated_no_lowcalrrate.ID'
-vcftoolsfilter = '--max-alleles 2 --min-alleles 2 --remove-indels --max-missing 0.95 --remove-filtered-all'
-positiv_mask= 'full_positive_mask.bed'
-modules='vcftools/0.1.14 any/bcftools/1.14'

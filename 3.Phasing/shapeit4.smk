@@ -4,10 +4,9 @@ import os
 workdir: os.getcwd()
 include: os.getcwd()+'/config.sk'
 
-chrall = [str(i) for i in range(1,23)]
+# chrall = [str(i) for i in range(1,23)] to do for all autosomes
 
-# print (modules)
-shell.prefix('module load '+ modules)
+chrall = str(22)
 
 rule all:
     input:
@@ -37,8 +36,6 @@ rule chr_filter:
     params:
         vcftools=vcftoolsfilter,
         bed=positiv_mask
-    resources:
-        mem_mb = 100000
     shell:
         """
         vcftools --gzvcf {input.vcf} --keep  {input.ID} {params.vcftools} --bed {params.bed} --recode --stdout|bgzip -c > {output.vcf}
@@ -48,8 +45,6 @@ rule tabix:
         vcf="chr/filtered_chr{chr}.vcf.gz"
     output:
         tabix= "chr/filtered_chr{chr}.vcf.gz.tbi"
-    resources:
-        mem_mb = 100000
     shell:
         """
         tabix {input.vcf}
@@ -59,8 +54,6 @@ rule format_map:
         map_file
     output:
         temp("maps/genetic_map_hg38_chr{chr}.txt.gz")
-    resources:
-        mem_mb = 4000
     shell:
         """
         zcat {input}|cut -d " " -f2,3,4|bgzip -c >{output}
@@ -97,5 +90,6 @@ rule concat:
         bcftools concat --threads {resources.threads} -o {output.vcf} -O z {input}
         tabix {output.vcf}
         """
+
 
 
