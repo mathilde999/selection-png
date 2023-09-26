@@ -1,6 +1,6 @@
-TREES='7.RELATE' # the directory where you ran the relate pipeline
-sites_bed= 'SNPs_kept.out' # the list of sites for which you want to run CLUES for format is "chr\tpos", with chr in the form of a number (no chr prefix) (you must check they are found in relate *mut output)
-POP_TO_EXTRACT='Mt_Wilhelm' # pop you want to use the relate subtree to run clues independently for each SNP
-number_of_test='5' # the number of time you want to run an independent
-Relate_Dir = 'relate_v1.1.8_x86_64_static' # directory to relate
-Clues_Dir = 'CLUES' # directory to clues
+TREES='7.Relate'
+sites_bed= 'SNPs_of_interest_kept.out' 
+POP_TO_EXTRACT='CEU'
+number_of_test='3'
+Relate_Dir = 'relate_v1.1.8_x86_64_static'
+Clues_Dir = 'CLUES'
