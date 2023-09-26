@@ -1,0 +1,14 @@
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18486/NA18486.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18488/NA18488.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18489/NA18489.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18498/NA18498.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18499/NA18499.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18501/NA18501.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA18502/NA18502.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA06984/NA06984.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA06985/NA06985.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA06986/NA06986.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA06989/NA06989.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA06994/NA06994.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA07000/NA07000.cram
+/gpfs/space/GI/GV/GI_references/genotype_references/1000G_2054_HighCoverageCrams/NA07037/NA07037.cram

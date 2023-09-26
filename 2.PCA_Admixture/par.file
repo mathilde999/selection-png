@@ -1,0 +1,7 @@
+genotypename:   example_pruned_chr22.ped
+snpname:    example_pruned_chr22.map
+indivname:  example_pruned_chr22.ped
+evecoutname:    example_pruned_chr22.evec
+evaloutname:    example_pruned_chr22.eval
+numoutlieriter: 0
+familynames:    NO
