@@ -1,6 +1,6 @@
 # selection-png    
-Scripts developed and used in [AndrÃ© et al., biorxiv 2022](https://doi.org/10.1101/2022.12.15.520226)
-AndrÃ©, M., Brucato, N., Hudjasov, G., Pankratov, V., Yermakovich, D., â€¦, Mondal, M., Ricaut, F.-X. (2022, December 15). Positive selection in the genomes of two Papua New Guinean populations at distinct altitude levels (p. 2022.12.15.520226). bioRxiv. https://doi.org/10.1101/2022.12.15.520226    
+Scripts developed and used in [André et al., biorxiv 2022](https://doi.org/10.1101/2022.12.15.520226)
+André, M., Brucato, N., Hudjasov, G., Pankratov, V., Yermakovich, D., …, Mondal, M., Ricaut, F.-X. (2022, December 15). Positive selection in the genomes of two Papua New Guinean populations at distinct altitude levels (p. 2022.12.15.520226). bioRxiv. https://doi.org/10.1101/2022.12.15.520226    
 
 We used vcf of 1000 Genomes 30x on GRCh38 as example data. The used vcf file can be downloaded [here](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_raw_GT_with_annot/) 
 similarly for the [phased vcf](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/) and the cram files.
