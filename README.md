@@ -6,7 +6,7 @@ We used vcf of 1000 Genomes 30x on GRCh38 as example data. The used vcf file can
 similarly for the [phased vcf](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/) and the cram files.
 
 You can use conda to install the dependencies necessary to run the following analysis and listed in `png_selection.yml`. 
-To install conda please visit anaconda. 
+To install conda please visit anaconda webpage. 
 ```shell  
 conda install --file png_selection.yml
 ```
@@ -335,6 +335,13 @@ snakemake -s UKBB/enrich.smk --profile [profile_file]
 ```
 
 ## 11. Archaic introgression for candidate regions for selection by hmmix (Skov et al., 2018)
+You can use conda to install the dependencies necessary to run the following introgression workflow and listed in `png_introgression.yml`. 
+To install conda please visit anaconda webpage.
+You will also have to install hmmix following the instruction on the [hmmix github](https://github.com/LauritsSkov/Introgression-detection) 
+
+```shell  
+conda install --file png_introgression.yml
+```
 there are two folders, **run_hmmix** and **process_res**: <br>
 
 #### 11.1. run_hmmix
