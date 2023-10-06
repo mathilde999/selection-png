@@ -55,7 +55,7 @@ rule create_clues_input:
         coal=TREES + "/pop_size/" + POP_TO_EXTRACT + "/" + POP_TO_EXTRACT + "_popsize.coal"
     output:
         "clues_input/" + POP_TO_EXTRACT + "/test_{test}/chr{chr}/" + POP_TO_EXTRACT + "_chr{chr}_{snp}.timeb",
-        multiext("clues_input/" + POP_TO_EXTRACT  + "/test_{test}/chr{chr}/" + POP_TO_EXTRACT + "_chr{chr}_{snp}",".mut.gz",".anc.gz",".dist.gz")
+        multiext("clues_input/" + POP_TO_EXTRACT  + "/test_{test}/chr{chr}/" + POP_TO_EXTRACT + "_chr{chr}_{snp}",".mut",".anc",".dist")
     params:
         input=TREES + "/extracted_trees/" + POP_TO_EXTRACT + "/" + POP_TO_EXTRACT + "_chr{chr}",
         output="clues_input/" + POP_TO_EXTRACT + "/test_{test}/chr{chr}/" + POP_TO_EXTRACT + "_chr{chr}_{snp}",
@@ -76,9 +76,6 @@ rule create_clues_input:
                         --num_samples 200 \
                         --first_bp {wildcards.snp} \
                         --last_bp {wildcards.snp}
-gzip {params.mut}
-gzip {params.anc}
-gzip {params.dist}
         """
 
 rule clues:
