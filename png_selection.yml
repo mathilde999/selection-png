@@ -23,3 +23,4 @@ dependencies:
   - pybedtools
   - numba
   - scipy.stat
+  - r-gridextra

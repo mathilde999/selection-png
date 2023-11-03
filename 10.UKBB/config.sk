@@ -1,7 +1,7 @@
 n_resampling= 10000
-n_region_sign_list= [8,7] # number of sites with significant association in the UKBB
-n_region_sign_blood_list= [4,3] # number of sites with significant association with blood pheno
+n_region_sign_list= [2,6] # number of sites with significant association in the UKBB
+n_region_sign_blood_list= [2,4] # number of sites with significant association with blood pheno
 list_blood_pheno = "blood_count_100081_list.full.name.txt" # list of blood phenotype name
 autosomes_file = "Autosome.bed" # bed file of autosomes
 bed_pheno = "pval_EUR.tsv.bgz"
-size_windows_bp = 200
+size_windows_bp = 100

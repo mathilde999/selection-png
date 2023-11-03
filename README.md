@@ -112,7 +112,7 @@ selscan --xpehh --vcf 4.XPEHH/CEU_phased_chr22_biallel_snp.vcf.gz --vcf-ref 4.XP
 norm --xpehh --files 4.XPEHH/CEU_CHB_chr22.xpehh.out # Output is 4.XPEHH/CEU_CHB_chr22.xpehh.out.norm 
 ```   
 #### 4.4. Top region score    
-This script will output the SNP with xpehhnorm in the 99th percentile 
+This script will output the SNP with xpehhnorm in the 99th percentile.
 ```shell
 python 4.XPEHH\XPEHH_bed_99.py 4.XPEHH/CEU_CHB_chr22.xpehh.out.norm # Output is 4.XPEHH/CEU_top_snp_XPEHH_99.bed   
 ```  
@@ -128,7 +128,8 @@ The XP-EHH score of the regions will be the top XP-EHH of the top SNPs uses to c
 bedtools merge -i 4.XPEHH/CEU_top_snp_XPEHH_99.bed -d 10000 -c 4 -o max > 4.XPEHH/CEU_merged_top_snp_XPEHH_99.bed
 bedtools merge -i 4.XPEHH/CHB_top_snp_XPEHH_1.bed -d 10000 -c 4 -o min > 4.XPEHH/CHB_merged_top_snp_XPEHH_1.bed
 ```
-#### 4.6. Get p-value for the 10 top regions with random sampling approach     
+#### 4.6. Get p-value for the 10 top regions with random sampling approach
+NB: For this example run I used only selection scores from chr22 and then there are only random regions from chr22. In the paper we used selection scores from all the autosomes.
 ```shell
 snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]
 ```  
@@ -152,7 +153,9 @@ The PBS score of the regions will be the top PBS of the regions uses to create t
 ```shell
 bedtools merge -i 5.PBS/CEU_sliding_windows_snp_top_regions_PBS.bed -d 10000 -c 4 -o max > 5.PBS/CEU_windows_and_PBS_top_windows_final_merged.bed
 ```  
-#### 5.3. Get p-value for the 10 top regions with random sampling approach     
+#### 5.3. Get p-value for the 10 top regions with random sampling approach
+Pvalue and Zscore are computed for log10(PBS)
+NB: For this example run I used only selection scores from chr22 and then there are only random regions from chr22. In the paper we used selection scores from all the autosomes.
 ```shell
 snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]
 ```
@@ -198,6 +201,8 @@ bedtools merge -i 6.FisherScore/CEU_FisherScore_windows.topSNP.bed -d 10000 -c 4
 bedtools merge -i 6.FisherScore/CHB_FisherScore_windows.topSNP.bed -d 10000 -c 4 -o max > 6.FisherScore/CHB_top_regions_Fisher_merged.bed
 ```  
 #### 6.3. Get p-value for the 10 top regions with random sampling approach  
+Pvalue and Zscore are computed for log10(PBS)
+NB: For this example run I used only selection scores from chr22 and then there are only random regions from chr22. In the paper we used selection scores from all the autosomes.
 ```shell  
 snakemake -s random_sampling/p_val.smk -kp --jobs 100 --profile [profile_file]
 ``` 

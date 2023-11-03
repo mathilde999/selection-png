@@ -1,36 +1,29 @@
 import pybedtools
 import os
 import pandas as pd
+
 workdir: os.getcwd()
 include: os.getcwd() + '/config.sk'
 import scipy.stats
-import glob
+import numpy as np
+
 """
 Functions
 """
 
-#find intesection regions on the introgression map
-def intersection_region(name_region, region_dict, selection_df):
-    chr=region_dict[name_region][0]
-    start=region_dict[name_region][1]
-    end=region_dict[name_region][2]
-    region = " ".join([chr,start, end])
-    region_bed = pybedtools.BedTool(region,from_string=True)
-    selection_bed = pybedtools.BedTool.from_dataframe(selection_df)
-    intersection = selection_bed.intersect(region_bed,u=True) #this output all the sites in selection_bed included in regions_bed
-    return intersection
-
 def random_region(selection_score_df, score_name):
     # Convert start and end columns to integers
     selection_score_df[['start', 'end']] = selection_score_df[['start', 'end']].astype(int)
+    print("this is the selection df \n", selection_score_df)
     # Sort the DataFrame by chromosomal position
     selection_score_df = selection_score_df.sort_values(by=['chrom', 'start'])
-    print("this is selection score", selection_score_df.head())
-    list_all_chr=[]
+    print("this is the selection df sorted \n", selection_score_df)
+    list_all_chr = []
     for chr in range(1,23):
-        selection_score_df_chr = selection_score_df[selection_score_df["chrom"] == "chr"+str(chr)]
+        selection_score_df_chr = selection_score_df[selection_score_df["chrom"] == chr]
+        print("this is the selection df per chr \n", selection_score_df)
         #list where we store the kept regions
-        selected_regions=[]
+        selected_regions = []
         # Iterate over the sorted BED file
         for index, row in selection_score_df_chr.iterrows():
             # If it's the first region, add it to the selected regions list
@@ -44,9 +37,25 @@ def random_region(selection_score_df, score_name):
                 # Check if the current region is separated by 5MB from the previous region
                 if current_start - prev_end > 5000000:
                     selected_regions.append([row['chrom'], row['start'], row['end'], row[score_name]])
-        list_all_chr = list_all_chr +selected_regions
+        list_all_chr = list_all_chr + selected_regions
     df = pd.DataFrame(list_all_chr,columns=['chrom', 'start', 'end', score_name])
     return df
+
+
+def get_pval(score_value, random_df, score_name):
+    if score_name == "xpehh":
+        score_name = score_name
+    else:
+        score_name = 'log10(' + score_name + ')'
+    mean_normal_distrib = random_df[score_name].mean()
+    sd_normal_distrib = random_df[score_name].std()
+    observed_z_score = (score_value - mean_normal_distrib) / sd_normal_distrib
+    if score_name == "xpehh":  #both negative and positive score are signe of selection
+        p_value = scipy.stats.norm.sf(abs(observed_z_score))
+    else:
+        p_value = scipy.stats.norm.sf(observed_z_score)
+    return observed_z_score, p_value
+
 
 def read_selection_score(file_name,score_name):
     if score_name == "xpehh":
@@ -67,125 +76,92 @@ def read_selection_score(file_name,score_name):
         selection_df = selection_df[selection_df['fisher'].notnull()]
     return selection_df
 
-"""
-Get input ready
-"""
-bed = open(regions_bed)
-
-####create the dict with all the info respectiv to the regions
-regions_dic = {}
-names_regions = []
-for line in bed:
-    CHR, START, END = line.split()
-    name_region = "_".join([CHR,START,END])
-    chrom=CHR.replace("chr","")
-    names_regions.append(name_region)
-    length = int(END) - int(START)
-    regions_dic[name_region] = [CHR, START, END, length]
-
-regions_bed = pd.DataFrame.from_dict(regions_dic, orient='index', columns=['chrom', 'start', 'end', 'length_region'] )
-
 
 """
 actual snakemake steps
 """
+
 rule all:
     input:
-        expand("out_" + score_name + "/output_enrich_" + score_name + "_{name}.pval", name=names_regions)
-
-
-rule intersection:
-    input:
-        score = selection_file
-    resources:
-        mem_mb = 10000
-    params:
-        score = score_name
-    output:
-        out="out_"+score_name+"/{name}_"+score_name+"_interesect.out"
-    run:
-        CHR = regions_dic[wildcards.name][0]
-        name=wildcards.name
-        score=params.score
-        #open selection file depending on selection score used
-        score_df = read_selection_score(input.score,score)
-        print("this is raw selection file for target windows",score_df)
-        #find intersection regions on the selection score file
-        intersection_bed = intersection_region(wildcards.name, regions_dic, score_df)
-        intersection_df = intersection_bed.to_dataframe()
-        intersection_df.columns = ['chrom', 'start', 'end', score]
-        intersection_df.to_csv(output.out, index=False, sep="\t")
+        "out_" + score_name + "/top_" + score_name + "_all_region_pval.out",
+        "out_" + score_name + "/top_" + score_name + "_pval.out"
 
 # The rule to greate a temp file that will get the information for how many snp we have a selection score info for.
 # We exclude the windows that have less than the inputed number of snp's
 rule random_windows_to_keep:
     input:
-        selection= selection_file
+        selection=selection_file
     params:
         score=score_name
     output:
-        random_regions="out_"+score_name+"/output_kept_random_region.out"
+        random_regions="out_" + score_name + "/output_kept_random_region.out"
     resources:
         mem_mb=100000
     run:
         score = params.score
         score_df = read_selection_score(input.selection,score)
-        print("this is raw selection file for random windows", score_df)
-        windows_to_keep=random_region(score_df, score)
+        windows_to_keep = random_region(score_df,score)
+        if score == 'xpehh':
+            pass
+        else:
+            windows_to_keep['log10(' + score + ')'] = np.log10(windows_to_keep[score])
         windows_to_keep.to_csv(output.random_regions,sep="\t",index=False)
 
-rule p_val_enrich:
+rule p_val_all:
     input:
-        random_regions = "out_"+score_name+"/output_kept_random_region.out",
-        intersect="out_"+score_name+"/{name}_"+score_name+"_interesect.out"
+        random_regions="out_" + score_name + "/output_kept_random_region.out",
+        selection=selection_file
     output:
-        out = "out_"+score_name+"/output_enrich_"+score_name+"_{name}.pval"
+        out="out_" + score_name + "/output_enrich_" + score_name + "_all_pval.gz"
     params:
-        score= score_name
+        score=score_name
     resources:
-        mem_mb=100000
+        mem_mb=200000
     run:
         score = params.score
-        random_regions_df = pd.read_csv(input.random_regions,sep="\t",usecols=[score])
-        list_random_mean_score = random_regions_df[score].values.tolist()
-        intersection_df = pd.read_csv(input.intersect,sep="\t",usecols=['chrom', 'start', 'end', score])
-        if score == "xpehh" and intersection_df[score].mean() < 0:
-            max_score_region_interest = intersection_df[score].min()
+        #open selection file depending on selection score used
+        selection_df = read_selection_score(input.selection,score)
+        random_regions_df = pd.read_csv(input.random_regions,sep="\t")
+        if score == 'xpehh':
+            #get pvalue from normal distribution of the random regions
+            g = lambda x: pd.Series(get_pval(x[score],random_regions_df,score))
         else:
-            max_score_region_interest = intersection_df[score].max()
-        #get pvalue from normal distribution of the random regions
-        mean_normal_distrib = random_regions_df[score].mean()
-        sd_normal_distrib = random_regions_df[score].std()
-        observed_z_score = (max_score_region_interest-mean_normal_distrib)/sd_normal_distrib
-        p_value = scipy.stats.norm.sf(abs(observed_z_score))
-        line_a = "P-val computed from the normal distribution of the random regions is : "+str(p_value) + "\n"
-        line_b = "Zscore computed from the normal distribution of the random regions is : " + str(observed_z_score) + "\n"
-        line_c = "Max value in the region " + str(wildcards.name) + " :" + str(max_score_region_interest) + "\n"
-        file1 = open(output.out,"w")
-        file1.writelines(line_a + line_b)
-        file1.close()
+            selection_df['log10(' + score + ')'] = np.log10(selection_df[score])
+            #get pvalue from normal distribution of the random regions
+            g = lambda x: pd.Series(get_pval(x['log10(' + score + ')'],random_regions_df,score))
+        selection_df[['Zscore', 'pval']] = selection_df.apply(g,axis=1)
+        selection_df.to_csv(output.out,sep="\t",index=False,compression='gzip')
 
-rule concat:
-    """
-    Concat (LD pruned) significant SNPs files per CHR together. 
-    """
+
+rule extract_p_val_top_region:
     input:
-        top_region = expand("out_" + score_name + "/{name}_" + score_name + "_interesect.out",name=names_regions)
+        pval_all = "out_" + score_name + "/output_enrich_" + score_name + "_all_pval.gz",
+        top_regions = regions_bed
     output:
-        top_region = "out_" + score_name + "/top_score_" + score_name + "_interesect.out"
+        top_region="out_" + score_name + "/top_" + score_name + "_all_region_pval.out",
+        top_snp = "out_" + score_name + "/top_" + score_name + "_pval.out"
     params:
-        path="out_" + score_name + "/",
-        score= score_name
+        score=score_name
     resources:
-        mem_mb=4000
+        mem_mb=10000
     run:
-        score=params.score
-        all_filenames_LD = [i for i in glob.glob(f"{params.path}/*{'_interesect.out'}")]
-        list_df = [pd.read_csv(f,delimiter='\t') for f in all_filenames_LD]
-        list_max = [f[score].astype(float).min() if score == "xpehh" and f[score].mean() < 0
-                    else f[score].astype(float).max() for f in list_df]
-        #list_name = [s.replace(params.path+"/",'') for s in list_df]
-        #list_name = [s.replace("/"+ score + "_interesect.out",'') for s in list_name]
-        df = pd.DataFrame(list_max, columns=[score])
-        df['color']="red"
-        df.to_csv(output.top_region,sep="\t",index=False)
+        score = params.score
+        #open selection file depending on selection score used
+        pval_df = pd.read_csv(input.pval_all,sep="\t")
+        top_df = pd.read_csv(input.top_regions,sep="\t", header=None)
+        top_bed = pybedtools.BedTool.from_dataframe(top_df)
+        pval_bed = pybedtools.BedTool.from_dataframe(pval_df)
+        intersection = pval_bed.intersect(top_bed, wb=True)  #this output all the sites in selection_bed included in regions_bed
+        intersection_df = intersection.to_dataframe()
+        if score == 'xpehh':
+            columns_name = ['chrom', 'start', 'end', score,'Zscore', 'pval']
+        else:
+            columns_name = ['chrom', 'start', 'end', score,  'log10(' + score + ')', 'Zscore', 'pval']
+        intersection_df.columns = columns_name + ['chrom_region', 'start_region', 'end_region']
+        intersection_df['top_region'] = intersection_df['chrom_region'].apply(str) + '_' + intersection_df['start_region'].apply(str) + '_'+ intersection_df['end_region'].apply(str)
+        intersection_df = intersection_df [columns_name + ['top_region']]
+        intersection_df.to_csv(output.top_region,sep="\t",index=False)
+        #get the info for the top windows (PBS and Fisher) or the top SNP (xpehh) for each top regions
+        max_df = intersection_df.loc[intersection_df.groupby('top_region')[score].apply(lambda x: x.abs().idxmax())]
+        max_df.to_csv(output.top_snp,sep="\t",index=False)
+
