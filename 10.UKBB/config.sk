@@ -1,7 +1,8 @@
 n_resampling= 10000
-n_region_sign_list= [2,6] # number of sites with significant association in the UKBB
-n_region_sign_blood_list= [2,4] # number of sites with significant association with blood pheno
-list_blood_pheno = "blood_count_100081_list.full.name.txt" # list of blood phenotype name
-autosomes_file = "Autosome.bed" # bed file of autosomes
-bed_pheno = "pval_EUR.tsv.bgz"
+n_region_sign_list= [2,6]
+n_region_sign_blood_list= [2,4]
+list_blood_pheno = "blood_count_100081_list.full.name.txt"
+autosomes_file = "Autosome.bed" # You need to use the GRCh38 or GRCh37 depending on the UKBB sum stat you are using. We used GR37
+bed_pheno = "/gpfs/space/home/mayukh/xOOA2/UKBiobank/EUR_Pval/pval_EUR.tsv.bgz"
 size_windows_bp = 100
+pheno_list_file="kept_pheno.list" # The phenotypes you don't want to consider 

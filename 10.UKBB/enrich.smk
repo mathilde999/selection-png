@@ -4,8 +4,10 @@ import os
 workdir: os.getcwd()
 include: os.getcwd() + '/config.sk'
 import pybedtools
-import glob
+import psutil
 import pandas as pd
+import scipy.stats
+import glob
 from statsmodels.distributions.empirical_distribution import ECDF
 
 
@@ -26,6 +28,8 @@ def random_sampling(windows_df, number_to_select, blood_site_bed):
     #we return the number of windows with at least one site associated with blood
     number_site = intersection_df['blood_assoc'].sum()
     return number_site
+
+
 
 
 """
@@ -52,17 +56,27 @@ for i in range(len(n_region_sign_list)):
     list_info_regions.append(key)
 
 
+#pheno that will be used
+
+with open(pheno_list_file) as f:
+    all_pheno_list = f.read().splitlines()
+
+"""
+The bed file with the pval for all the pheno is huge. We will define in how many chuncks we need to read and filter it
+"""
+
 
 """
 We build the distribution of the count of how many windows include at least one significant association with a
-blood phenotype in the UKbiobank by X random non-sliding windows of 200bp (100bp upstream and 100bp downstream) including
-at least 1 site with a significant asssociation with any phenotype in the UKbiobank.
+blood phenotype in the UKbiobank by X random non-sliding windows of 2000bp (1kb upstream and 1kb downstream) including
+at least 1 site with a significant asssociation to any phenotype in the UKbiobank.
 """
-
+import pandas as pd
 
 rule all:
     input:
-         expand("out/{info_region}_random_regions.out", info_region = list_info_regions)
+         expand("out/{info_region}_random_regions.out", info_region = list_info_regions),
+         expand("out/{info_region}_random_regions.pval", info_region = list_info_regions)
 
 rule split_chr:
     input:
@@ -86,10 +100,6 @@ rule clean_pheno_file:
     resources:
         mem_mb = 100000
     run:
-        # Read column names from file
-        cols = list(pd.read_csv(input.pheno_all,nrows=1,sep='\t', compression='gzip'))
-        all_pheno_list = cols[4:]
-
         #read and filter the file, it is huge so we will do it in chunks
         #what is the maximum size of chunck we can do at a time
         pheno_sample = pd.read_csv(input.pheno_all,nrows=10,sep='\t', compression='gzip')
@@ -102,7 +112,7 @@ rule clean_pheno_file:
         my_chunk = int(my_chunk // 1)
         # create the iterator
         iter_csv = pd.read_csv(input.pheno_all,iterator = True, chunksize = my_chunk, sep='\t',
-            usecols =[i for i in cols if i != "REF" and i != "ALT"], compression='gzip')
+            usecols =["#CHROM", "POS"]+all_pheno_list, compression='gzip')
         print("creations list of df done")
         #we apply filters on every chunk
         list_filtered_pheno_chunck=[]
@@ -111,8 +121,8 @@ rule clean_pheno_file:
             chunk.columns = ["#CHROM","POS"] + all_pheno_list
             #remove the site for which we only have nan at every pheno
             chunk = chunk.dropna(subset=all_pheno_list)
-            #replace pval < -11.29 to 1 and the pval > -11.29 to 0
-            chunk[all_pheno_list] = (chunk[all_pheno_list] < -11.29).astype(int)
+            #replace pval < -10.47 to 1 and the pval > -10.47 to 0
+            chunk[all_pheno_list] = (chunk[all_pheno_list] < -10.47).astype(int)
             #I will keep only the site that are at least significantly associated to 1 pheno
             chunk = chunk[(chunk[all_pheno_list] == 1).any(axis=1)]
             list_filtered_pheno_chunck.append(chunk)
@@ -148,7 +158,7 @@ rule create_non_overlapping_windows:
         end = chr_dic[chr]
         region = " ".join([str(chr), str(start), str(end)])
         autosomes_bed = pybedtools.BedTool(region,from_string=True)
-        #create windows of size X from the config file
+        #create windows of size 2kb
         wind_size = params.wind_size
         windows_bed = autosomes_bed.window_maker(autosomes_bed,w=wind_size)
         #load pheno bed
@@ -167,10 +177,10 @@ Get a bed of the site that have a significant association with at least one bloo
 """
 rule blood_sign_site:
     input:
-        pheno_sign = "pheno_sum/pheno_sign_sum_chr{chr}.bed.gz", #bed file with info for site that are significantly associated with at least one pheno
+        pheno_sign = "pheno_sum/pheno_sign_sum_chr{chr}.bed.gz", #bed file with info for site that are associated significiantlyt to at least one pheno
         blood_pheno = list_blood_pheno
     output:
-        blood_sign = "pheno_sum/blood_sign_sum_chr{chr}.bed.gz" #bed file with info for site that are associated significantly associated with at least one blood pheno
+        blood_sign = "pheno_sum/blood_sign_sum_chr{chr}.bed.gz" #bed file with info for site that are associated significiantlyt to at least one blood pheno
     resources:
         mem_mb = 100000
     run:
@@ -223,7 +233,8 @@ rule get_pval:
     params:
         number_random_sampling= n_resampling
     output:
-        out= "out/{info_region}_random_regions.out"
+        out= "out/{info_region}_random_regions.out",
+        out_bis= "out/{info_region}_random_regions.pval"
     resources:
         mem_mb=100000
     run:
@@ -241,7 +252,7 @@ rule get_pval:
         # Get p-value of the nuber of blood assoc based on the random (null) distribution
         ecdf_score = ECDF(list_sum)
         pval_score_region = ecdf_score(number_assoc_blood)
-        line_a = "Get p-value of the observed site sign assoc with blood (" + str(number_assoc_blood) + " for " +str(number_random_windows)+\
+        line_a = "Get p-value of the obersver site sign assoc with blood (" + str(number_assoc_blood) + " for " +str(number_random_windows)+\
                  " regions with significant assoc based on the random (null) distribution"
         line_b = 'P(random_distrib < '+ str(number_assoc_blood) +' regions with at least one site sign assoc to blood pheno) = ' + str(pval_score_region) + "\n"
         lines = line_a + line_b
@@ -249,4 +260,19 @@ rule get_pval:
         file1 = open(output.out,"w")
         file1.writelines(lines)
         file1.close()
+
+        #get pvalue from normal distribution of the random regions
+        mean_normal_distrib = sum(list_sum)/len(list_sum)
+        variance = sum([((x - mean_normal_distrib) ** 2) for x in list_sum])/len(list_sum)
+        sd_normal_distrib = variance ** 0.5
+        observed_z_score = (number_assoc_blood - mean_normal_distrib) / sd_normal_distrib
+        p_values = scipy.stats.norm.sf(abs(observed_z_score))
+        line_d = "P-val computed from the normal distribution of the random regions is : " + str(p_values)
+        file1 = open(output.out_bis,"w")
+        file1.writelines(line_d)
+        file1.close()
+
+
+
+
 
