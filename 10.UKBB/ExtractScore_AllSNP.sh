@@ -5,7 +5,7 @@ ls $1/*.bgz  | \
     awk  "q"{print NR\"\\t\"$0\"\\t"$0"\\t"$NF"\"}"q"| grep \"pval_EUR\"| cut -f 1,3- "}'> temp/extract_pvalcol_index.sh
 sh temp/extract_pvalcol_index.sh  > temp/path_pval_eurindex.txt
 mkdir -p phenotypes
-awk '{print "zcat ",$2," | cut -f "$1" >","phenotypes/"substr($3,4,length($3)-11)".pval"}' temp/path_pval_eurindex.txt \
+awk '{print "zcat ",$2," | cut -f "$1" >","phenotypes/"substr($3,1,length($3)-11)".pval"}' temp/path_pval_eurindex.txt \
   > temp/extract_pval.sh
 sh temp/extract_pval.sh
 paste \
