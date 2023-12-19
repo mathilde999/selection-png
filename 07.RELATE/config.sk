@@ -6,3 +6,4 @@ map_file='genetic_map_hg38_chr{chr}.txt.gz' # recombination map per chr (here fr
 mask_file='20160622.chr{chr}.mask.fasta.gz' # mask file per chr in fasta format, for this example we used the Strict mask from 1000G
 POP_TO_EXTRACT=['YRI','CHB','CEU'] # pop for which you want to extract a tree for and compute population size
 Relate_Dir = '/relate_v1.1.8_x86_64_static' # directory to your relate version
+chrall = [str(i) for i in range(1, 23)]

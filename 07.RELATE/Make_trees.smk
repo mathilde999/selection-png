@@ -4,8 +4,6 @@ import os
 workdir: os.getcwd()
 include: os.getcwd()+'/config.sk'
 
-chrall = [str(i) for i in range(1, 23)]
-
 rule all:
     input:
         expand("pop_size/{pop_to_extract}/{pop_to_extract}_popsize.coal", pop_to_extract=POP_TO_EXTRACT)
